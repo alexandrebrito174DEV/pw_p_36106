@@ -1,8 +1,18 @@
 require("dotenv").config();
 
+const { PrismaClient } = require("@prisma/client");
+const { PrismaPg } = require("@prisma/adapter-pg");
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL
+});
+
+const prisma = new PrismaClient({
+  adapter: adapter
+});
 
 const app = express();
 
@@ -12,164 +22,135 @@ app.use(morgan("dev"));
 
 const PORT = process.env.SERVER_PORT || 4242;
 
+// --------------------------------------------------------------------
+// Rotas base
+// --------------------------------------------------------------------
 
 app.get("/", (req, res) => {
-    res.status(200).json({ message: "Hello, my API works 🚀 v1.0.11" });
+  return res.status(200).json({ message: "Hello, my API works 🚀 v1.0.11" });
 });
 
 app.get("/users", (req, res) => {
-    res.status(200).json({ message: "OK - GET users" });
+  return res.status(200).json({ message: "OK - GET users" });
 });
 
 app.post("/users", (req, res) => {
-    res.status(201).json({ message: "OK - POST users" });
+  return res.status(201).json({ message: "OK - POST users" });
 });
 
 app.put("/users/:id", (req, res) => {
-    res.status(200).json({ message: "OK - PUT users" });
+  return res.status(200).json({ message: "OK - PUT users" });
 });
 
 app.delete("/users/:id", (req, res) => {
-    res.status(200).json({ message: "OK - DELETE users" });
+  return res.status(200).json({ message: "OK - DELETE users" });
 });
 
-
+// --------------------------------------------------------------------
+// API de filmes
 // --------------------------------------------------------------------
 
-
-// Array de filmes (semelhante a uma pequena base de dados)
 let filmes = [
   { id: 1, titulo: "Inception", ano: 2010 },
   { id: 2, titulo: "Interstellar", ano: 2014 }
 ];
 
-
-// GET - lista todos os filmes
 app.get("/filmes", (req, res) => {
   return res.status(200).json(filmes);
 });
 
-
-// GET - especifico
 app.get("/filmes/:id", (req, res) => {
-
-  let id = parseInt(req.params.id);
-
-  if (isNaN(id)) {
-    return res.status(400).json({ erro: "Id inválido" });
-  }
-
-  let filme = filmes.find((filmeAtual) => filmeAtual.id === id);
-
-  if (!filme) {
-    return res.status(404).json({ erro: "Filme não encontrado" });
-  }
-
-  return res.status(200).json(filme);
-
-});
-
-
-// POST 
-app.post("/filmes", (req, res) => {
-
-  const titulo = req.body.titulo;
-  const ano = req.body.ano;
-
-  if (!titulo || !ano) {
-    return res.status(400).json({ erro: "Titulo e ano são obrigatórios" });
-  }
-
-  const novoFilme = {
-    id: filmes.length + 1, // id automático (incrementação)
-    titulo: titulo,
-    ano: ano
-  };
-
-  filmes.push(novoFilme); //adiciona um novo filme ao array
-
-  return res.status(201).json(novoFilme);
-
-});
-
-
-// PUT 
-app.put("/filmes/:id", (req, res) => {
-
   const id = parseInt(req.params.id);
 
-  if (isNaN(id)) {
+  if (isNaN(id))
+  {
     return res.status(400).json({ erro: "Id inválido" });
   }
 
   const filme = filmes.find((filmeAtual) => filmeAtual.id === id);
 
-  if (!filme) {
+  if (!filme)
+  {
+    return res.status(404).json({ erro: "Filme não encontrado" });
+  }
+
+  return res.status(200).json(filme);
+});
+
+app.post("/filmes", (req, res) => {
+  const titulo = req.body.titulo;
+  const ano = req.body.ano;
+
+  if (!titulo || !ano)
+  {
+    return res.status(400).json({ erro: "Titulo e ano são obrigatórios" });
+  }
+
+  const novoFilme = {
+    id: filmes.length + 1,
+    titulo: titulo,
+    ano: ano
+  };
+
+  filmes.push(novoFilme);
+
+  return res.status(201).json(novoFilme);
+});
+
+app.put("/filmes/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+
+  if (isNaN(id))
+  {
+    return res.status(400).json({ erro: "Id inválido" });
+  }
+
+  const filme = filmes.find((filmeAtual) => filmeAtual.id === id);
+
+  if (!filme)
+  {
     return res.status(404).json({ erro: "Filme não encontrado" });
   }
 
   const titulo = req.body.titulo;
   const ano = req.body.ano;
 
-  if (titulo) {
+  if (titulo)
+  {
     filme.titulo = titulo;
   }
 
-  if (ano) {
+  if (ano)
+  {
     filme.ano = ano;
   }
 
   return res.status(200).json(filme);
-
 });
 
-
-// DELETE 
 app.delete("/filmes/:id", (req, res) => {
-
   const id = parseInt(req.params.id);
 
-  if (isNaN(id)) {
+  if (isNaN(id))
+  {
     return res.status(400).json({ erro: "Id inválido" });
   }
 
   const indice = filmes.findIndex((filmeAtual) => filmeAtual.id === id);
 
-  if (indice === -1) {
+  if (indice === -1)
+  {
     return res.status(404).json({ erro: "Filme não encontrado" });
   }
 
   filmes.splice(indice, 1);
 
   return res.status(200).json({ mensagem: "Filme removido" });
-
 });
 
-
-//porta 
-app.listen(PORT, () => {
-  console.log("Servidor a correr na porta " + PORT);
-});
-
-
-
-
-
-
-//-------------------------------------------------------------------------------------------------------------------------------
-// Lab-2- Api de gestão de tarefas 
-//-------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-app.use(express.json());
-
-// Base de dados
-let tarefas = [
-  { id: 1, titulo: "Estudar JavaScript", concluida: false, prioridade: "alta" },
-  { id: 2, titulo: "Fazer trabalho de Programação Web (LAB-2)", concluida: true, prioridade: "média" }
-];
+// --------------------------------------------------------------------
+// API de tarefas
+// --------------------------------------------------------------------
 
 const PRIORIDADES = ["baixa", "média", "alta"];
 
@@ -186,198 +167,227 @@ function parseIdTarefa(param)
   {
     return -1;
   }
-  else
-  {
-    return id_tarefa;
-  }
+
+  return id_tarefa;
 }
 
-
-
-// GET
-app.get("/tarefas", (req, res) => {
-  return res.status(200).json(tarefas);
-});
-
-// GET - estatísticas 
-app.get("/tarefas/statistics", (req, res) => {
-  const total = tarefas.length;
-  let completas = 0;
-
-  for (let i = 0; i < tarefas.length; i++) {
-    if (tarefas[i].concluida) {
-      completas++;
-    }
-  }
-
-  const pendentes = total - completas;
-
-  return res.status(200).json({ total, completas, pendentes });
-});
-
-// GET - por id
-app.get("/tarefas/:id", (req, res) => {
-  const id_tarefa = parseIdTarefa(req.params.id);
-
-  if (id_tarefa === -1) {
-    return res.status(400).json({ erro: "Id inválido" });
-  }
-
-  const tarefa = tarefas.find((t) => t.id === id_tarefa);
-
-  if (!tarefa) {
-    return res.status(404).json({ erro: "Tarefa não encontrada" });
-  }
-
-  return res.status(200).json(tarefa);
-});
-
-
-// POST
-app.post("/tarefas", (req, res) => {
-
-  const titulo = req.body.titulo;
-  const prioridade = req.body.prioridade;
-
-  if (!titulo || !prioridade)
+app.get("/tarefas", async (req, res) => {
+  try
   {
-    return res.status(400).json({ erro: "A indicação de título e prioridade são obrigatórios" });
+    const tarefas = await prisma.tarefa.findMany();
+    return res.status(200).json(tarefas);
   }
-  else
+  catch (erro)
   {
-    if (!prioridadeValida(prioridade))
+    console.error("ERRO GET /tarefas:", erro);
+    return res.status(500).json({ erro: "Erro ao listar tarefas." });
+  }
+});
+
+app.get("/tarefas/statistics", async (req, res) => {
+  try
+  {
+    const tarefas = await prisma.tarefa.findMany();
+
+    const total = tarefas.length;
+    let completas = 0;
+
+    for (let i = 0; i < tarefas.length; i++)
     {
-      return res.status(400).json({ erro: "Prioridade inválida. Nota: Só existe 3 tipos de prioridade: baixa, média ou alta" });
+      if (tarefas[i].concluida)
+      {
+        completas++;
+      }
     }
-    else
-    {
-      const novaTarefa = {
-        id: tarefas.length + 1,
-        titulo: titulo,
-        concluida: false,
-        prioridade: prioridade
-      };
 
-      tarefas.push(novaTarefa); // adiciona ao array
+    const pendentes = total - completas;
 
-      return res.status(201).json(novaTarefa);
-    }
+    return res.status(200).json({ total, completas, pendentes });
   }
-
+  catch (erro)
+  {
+    console.error("ERRO GET /tarefas/statistics:", erro);
+    return res.status(500).json({ erro: "Erro ao calcular estatísticas." });
+  }
 });
 
-
-// PUT
-app.put("/tarefas/:id", (req, res) => {
-
-  const id_tarefa = parseIdTarefa(req.params.id);
-
-  if (id_tarefa === -1)
+app.get("/tarefas/:id", async (req, res) => {
+  try
   {
-    return res.status(400).json({ erro: "Id inválido" });
-  }
-  else
-  {
-    const tarefa = tarefas.find((tarefaAtual) => tarefaAtual.id === id_tarefa);
+    const id_tarefa = parseIdTarefa(req.params.id);
+
+    if (id_tarefa === -1)
+    {
+      return res.status(400).json({ erro: "Id inválido" });
+    }
+
+    const tarefa = await prisma.tarefa.findUnique({
+      where: {
+        id: id_tarefa
+      }
+    });
 
     if (!tarefa)
     {
       return res.status(404).json({ erro: "Tarefa não encontrada" });
     }
-    else
-    {
-      const titulo = req.body.titulo;
-      const concluida = req.body.concluida;
-      const prioridade = req.body.prioridade;
 
-      if (titulo !== undefined)
-      {
-        if (!titulo)
-        {
-          return res.status(400).json({ erro: "A secção do titulo não pode ser vazio" });
-        }
-        else
-        {
-          tarefa.titulo = titulo;
-        }
-      }
-
-      if (concluida !== undefined)
-      {
-        if (concluida !== true && concluida !== false)
-        {
-          return res.status(400).json({ erro: "Para estar concluída temos de colocar true ou false" });
-        }
-        else
-        {
-          tarefa.concluida = concluida;
-        }
-      }
-
-      if (prioridade !== undefined)
-      {
-        if (!prioridadeValida(prioridade))
-        {
-          return res.status(400).json({ erro: "Prioridade inválida. Nota: Só existe 3 tipos de prioridade: baixa, média ou alta" });
-        }
-        else
-        {
-          tarefa.prioridade = prioridade;
-        }
-      }
-
-      return res.status(200).json(tarefa);
-    }
+    return res.status(200).json(tarefa);
   }
-
+  catch (erro)
+  {
+    console.error("ERRO GET /tarefas/:id:", erro);
+    return res.status(500).json({ erro: "Erro ao procurar tarefa." });
+  }
 });
 
-
-// DELETE
-app.delete("/tarefas/:id", (req, res) => {
-
-  const id_tarefa = parseIdTarefa(req.params.id);
-
-  if (id_tarefa === -1)
+app.post("/tarefas", async (req, res) => {
+  try
   {
-    return res.status(400).json({ erro: "Id inválido" });
-  }
-  else
-  {
-    let encontrada = false;
-    let novasTarefas = [];
+    const titulo = req.body.titulo;
+    const prioridade = req.body.prioridade;
 
-    for (let i = 0; i < tarefas.length; i++)
+    if (!titulo || !prioridade)
     {
-      if (tarefas[i].id === id_tarefa)
-      {
-        encontrada = true;
-      }
-      else
-      {
-        novasTarefas.push(tarefas[i]);
-      }
+      return res.status(400).json({ erro: "A indicação de título e prioridade são obrigatórios" });
     }
 
-    if (!encontrada)
+    if (!prioridadeValida(prioridade))
+    {
+      return res.status(400).json({ erro: "Prioridade inválida. Nota: Só existe 3 tipos de prioridade: baixa, média ou alta" });
+    }
+
+    const novaTarefa = await prisma.tarefa.create({
+      data: {
+        titulo: titulo,
+        concluida: false,
+        prioridade: prioridade
+      }
+    });
+
+    return res.status(201).json(novaTarefa);
+  }
+  catch (erro)
+  {
+    console.error("ERRO POST /tarefas:", erro);
+    return res.status(500).json({ erro: "Erro ao criar tarefa." });
+  }
+});
+
+app.put("/tarefas/:id", async (req, res) => {
+  try
+  {
+    const id_tarefa = parseIdTarefa(req.params.id);
+
+    if (id_tarefa === -1)
+    {
+      return res.status(400).json({ erro: "Id inválido" });
+    }
+
+    const tarefa = await prisma.tarefa.findUnique({
+      where: {
+        id: id_tarefa
+      }
+    });
+
+    if (!tarefa)
     {
       return res.status(404).json({ erro: "Tarefa não encontrada" });
     }
-    else
-    {
-      tarefas = novasTarefas;
-      return res.status(200).json({ mensagem: "Tarefa removida" });
-    }
-  }
 
+    const titulo = req.body.titulo;
+    const concluida = req.body.concluida;
+    const prioridade = req.body.prioridade;
+
+    let dadosAtualizados = {};
+
+    if (titulo !== undefined)
+    {
+      if (!titulo)
+      {
+        return res.status(400).json({ erro: "A secção do titulo não pode ser vazio" });
+      }
+
+      dadosAtualizados.titulo = titulo;
+    }
+
+    if (concluida !== undefined)
+    {
+      if (concluida !== true && concluida !== false)
+      {
+        return res.status(400).json({ erro: "Para estar concluída temos de colocar true ou false" });
+      }
+
+      dadosAtualizados.concluida = concluida;
+    }
+
+    if (prioridade !== undefined)
+    {
+      if (!prioridadeValida(prioridade))
+      {
+        return res.status(400).json({ erro: "Prioridade inválida. Nota: Só existe 3 tipos de prioridade: baixa, média ou alta" });
+      }
+
+      dadosAtualizados.prioridade = prioridade;
+    }
+
+    const tarefaAtualizada = await prisma.tarefa.update({
+      where: {
+        id: id_tarefa
+      },
+      data: dadosAtualizados
+    });
+
+    return res.status(200).json(tarefaAtualizada);
+  }
+  catch (erro)
+  {
+    console.error("ERRO PUT /tarefas/:id:", erro);
+    return res.status(500).json({ erro: "Erro ao atualizar tarefa." });
+  }
 });
 
+app.delete("/tarefas/:id", async (req, res) => {
+  try
+  {
+    const id_tarefa = parseIdTarefa(req.params.id);
 
-//localhost
-if (process.env.NODE_ENV !== "production") {
+    if (id_tarefa === -1)
+    {
+      return res.status(400).json({ erro: "Id inválido" });
+    }
+
+    const tarefa = await prisma.tarefa.findUnique({
+      where: {
+        id: id_tarefa
+      }
+    });
+
+    if (!tarefa)
+    {
+      return res.status(404).json({ erro: "Tarefa não encontrada" });
+    }
+
+    await prisma.tarefa.delete({
+      where: {
+        id: id_tarefa
+      }
+    });
+
+    return res.status(200).json({ mensagem: "Tarefa removida" });
+  }
+  catch (erro)
+  {
+    console.error("ERRO DELETE /tarefas/:id:", erro);
+    return res.status(500).json({ erro: "Erro ao remover tarefa." });
+  }
+});
+
+if (process.env.NODE_ENV !== "production")
+{
   app.listen(PORT, () => {
     console.log(`Servidor a correr em http://localhost:${PORT}`);
   });
 }
-//Para o Vercel
+
 module.exports = app;
