@@ -12,9 +12,19 @@ datasource db {
   provider = "postgresql"
 }
 
+model Utilizador {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String   @unique
+  password  String
+  tarefas   Tarefa[]
+}
+
 model Tarefa {
-  id         Int     @id @default(autoincrement())
-  titulo     String
-  concluida  Boolean @default(false)
-  prioridade String
+  id            Int         @id @default(autoincrement())
+  titulo        String
+  concluida     Boolean     @default(false)
+  prioridade    String
+  utilizadorId  Int
+  utilizador    Utilizador  @relation(fields: [utilizadorId], references: [id], onDelete: Cascade)
 }
