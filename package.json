@@ -1,15 +1,20 @@
 {
-  "name": "my-first-api",
+  "name": "pw-p-lab-biblioteca-avancada-36106",
   "version": "1.0.0",
-  "description": "",
+  "description": "API Biblioteca Avançada - Programação Web",
   "main": "api/server.js",
   "scripts": {
     "start": "node api/server.js",
     "dev": "nodemon api/server.js",
     "build": "prisma generate --config prisma.config.ts"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "api",
+    "express",
+    "prisma",
+    "biblioteca"
+  ],
+  "author": "Alexandre Brito",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
