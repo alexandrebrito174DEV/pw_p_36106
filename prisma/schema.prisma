@@ -13,18 +13,21 @@ datasource db {
 }
 
 model Utilizador {
-  id        Int      @id @default(autoincrement())
-  nome      String
-  email     String   @unique
-  password  String
-  tarefas   Tarefa[]
+  id       Int      @id @default(autoincrement())
+  nome     String
+  email    String   @unique
+  password String
+  tarefas  Tarefa[]
 }
 
 model Tarefa {
-  id            Int         @id @default(autoincrement())
-  titulo        String
-  concluida     Boolean     @default(false)
-  prioridade    String
-  utilizadorId  Int
-  utilizador    Utilizador  @relation(fields: [utilizadorId], references: [id], onDelete: Cascade)
+  id           Int        @id @default(autoincrement())
+  titulo       String
+  concluida    Boolean    @default(false)
+  prioridade   String     @default("media")
+  utilizadorId Int
+  utilizador   Utilizador @relation(fields: [utilizadorId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
+

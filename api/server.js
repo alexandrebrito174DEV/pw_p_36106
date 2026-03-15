@@ -307,7 +307,7 @@ app.delete("/filmes/:id", (req, res) => {
 // --------------------------------------------------------------------
 
 // Prioridades
-const PRIORIDADES = ["baixa", "média", "alta"];
+const PRIORIDADES = ["baixa", "media", "alta"];
 
 // Verifica se a prioridade inserida existe
 function prioridadeValida(prioridade){
