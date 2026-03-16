@@ -4,10 +4,10 @@
   "description": "API Biblioteca Avançada - Programação Web",
   "main": "api/server.js",
   "scripts": {
-    "start": "node api/server.js",
-    "dev": "nodemon api/server.js",
-    "build": "echo Build concluído"
-  },
+  "start": "node api/server.js",
+  "dev": "nodemon api/server.js",
+  "build": "prisma generate"
+},
   "keywords": [
     "api",
     "express",
