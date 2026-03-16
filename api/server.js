@@ -31,6 +31,10 @@ app.use((req, res) => {
 
 app.use(errorMiddleware);
 
-app.listen(PORT, () => {
-  console.log(`Servidor a correr na porta ${PORT}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Servidor a correr na porta ${PORT}`);
+  });
+}
+
+module.exports = app;
