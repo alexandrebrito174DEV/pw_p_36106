@@ -1,24 +1,12 @@
 const express = require("express");
 const router = express.Router();
+const bookController = require("../controllers/book.controller");
 
-const livroController = require("../controllers/book.controller");
-
-// Pesquisa por título
-router.get("/search", livroController.pesquisarLivros);
-
-// Listar todos os livros
-router.get("/", livroController.listarLivros);
-
-// Procurar livro por id
-router.get("/:id", livroController.procurarLivroPorId);
-
-// Criar livro
-router.post("/", livroController.criarLivro);
-
-// Atualizar livro
-router.put("/:id", livroController.atualizarLivro);
-
-// Apagar livro
-router.delete("/:id", livroController.apagarLivro);
+router.get("/", bookController.listarLivros);
+router.get("/search", bookController.pesquisarLivros);
+router.get("/:id", bookController.procurarLivroPorId);
+router.post("/", bookController.criarLivro);
+router.put("/:id", bookController.atualizarLivro);
+router.delete("/:id", bookController.apagarLivro);
 
 module.exports = router;

@@ -1,12 +1,17 @@
 const prisma = require("../prisma/prismaClient");
 
-// Lista livros com paginação
 const listarLivros = async (query) => {
-
-  const pagina = parseInt(query.page) || 1;
-  const limite = parseInt(query.limit) || 10;
-
+  let pagina = parseInt(query.page) || 1;
+  let limite = parseInt(query.limit) || 10;
   const ordenar = query.sort === "year" ? "year" : "title";
+
+  if (pagina < 1){
+    pagina = 1;
+  }
+
+  if (limite < 1){
+    limite = 10;
+  }
 
   return prisma.book.findMany({
     skip: (pagina - 1) * limite,
@@ -16,7 +21,6 @@ const listarLivros = async (query) => {
   });
 };
 
-// Procurar livro por id
 const procurarLivroPorId = async (id) => {
   return prisma.book.findUnique({
     where: { id },
@@ -24,9 +28,7 @@ const procurarLivroPorId = async (id) => {
   });
 };
 
-// Criar livro
 const criarLivro = async (dados) => {
-
   const autor = await prisma.author.findUnique({
     where: { id: dados.authorId }
   });
@@ -47,9 +49,7 @@ const criarLivro = async (dados) => {
   });
 };
 
-// Atualizar livro
 const atualizarLivro = async (id, dados) => {
-
   const livro = await prisma.book.findUnique({
     where: { id }
   });
@@ -58,16 +58,30 @@ const atualizarLivro = async (id, dados) => {
     return "NAO_ENCONTRADO";
   }
 
+  if (dados.authorId !== undefined){
+    const autor = await prisma.author.findUnique({
+      where: { id: dados.authorId }
+    });
+
+    if (!autor){
+      return "AUTOR_NAO_ENCONTRADO";
+    }
+  }
+
   return prisma.book.update({
     where: { id },
-    data: dados,
+    data: {
+      title: dados.title,
+      year: dados.year,
+      genre: dados.genre,
+      available: dados.available,
+      authorId: dados.authorId
+    },
     include: { author: true }
   });
 };
 
-// Apagar livro
 const apagarLivro = async (id) => {
-
   const livro = await prisma.book.findUnique({
     where: { id }
   });
@@ -83,9 +97,7 @@ const apagarLivro = async (id) => {
   return true;
 };
 
-// Pesquisar livros
 const pesquisarLivros = async (titulo) => {
-
   return prisma.book.findMany({
     where: {
       title: {

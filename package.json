@@ -6,7 +6,8 @@
   "scripts": {
   "start": "node api/server.js",
   "dev": "nodemon api/server.js",
-  "build": "prisma generate"
+  "build": "prisma generate",
+ "seed": "node api/prisma/seed.js"
 },
   "keywords": [
     "api",

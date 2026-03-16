@@ -1,8 +1,8 @@
-const autorService = require("../services/author.service");
+const authorService = require("../services/author.service");
 
 const listarAutores = async (req, res, next) => {
   try{
-    const autores = await autorService.listarAutores();
+    const autores = await authorService.listarAutores();
     return res.status(200).json(autores);
   }
   catch (erro){
@@ -12,10 +12,11 @@ const listarAutores = async (req, res, next) => {
 
 const procurarAutorPorId = async (req, res, next) => {
   try{
-    const autor = await autorService.procurarAutorPorId(req.params.id);
+    const { id } = req.params;
+    const autor = await authorService.procurarAutorPorId(id);
 
     if (!autor){
-      return res.status(404).json({ erro: "Autor não encontrado" });
+      return res.status(404).json({ erro: "Autor não encontrado." });
     }
 
     return res.status(200).json(autor);
@@ -27,18 +28,20 @@ const procurarAutorPorId = async (req, res, next) => {
 
 const criarAutor = async (req, res, next) => {
   try{
-    const nome = req.body.name;
-    const nacionalidade = req.body.nationality;
-    const anoNascimento = req.body.birthYear;
+    const { name, nationality, birthYear } = req.body;
 
-    if (!nome){
-      return res.status(400).json({ erro: "O nome do autor é obrigatório" });
+    if (!name || !nationality || birthYear === undefined){
+      return res.status(400).json({ erro: "Os campos name, nationality e birthYear são obrigatórios." });
     }
 
-    const novoAutor = await autorService.criarAutor({
-      name: nome,
-      nationality: nacionalidade,
-      birthYear: anoNascimento
+    if (typeof birthYear !== "number"){
+      return res.status(400).json({ erro: "O campo birthYear tem de ser numérico." });
+    }
+
+    const novoAutor = await authorService.criarAutor({
+      name,
+      nationality,
+      birthYear
     });
 
     return res.status(201).json(novoAutor);
@@ -50,22 +53,25 @@ const criarAutor = async (req, res, next) => {
 
 const atualizarAutor = async (req, res, next) => {
   try{
-    const nome = req.body.name;
-    const nacionalidade = req.body.nationality;
-    const anoNascimento = req.body.birthYear;
+    const { id } = req.params;
+    const { name, nationality, birthYear } = req.body;
 
-    if (nome !== undefined && !nome){
-      return res.status(400).json({ erro: "O nome do autor não pode estar vazio" });
+    if (!name || !nationality || birthYear === undefined){
+      return res.status(400).json({ erro: "Os campos name, nationality e birthYear são obrigatórios." });
     }
 
-    const autorAtualizado = await autorService.atualizarAutor(req.params.id, {
-      name: nome,
-      nationality: nacionalidade,
-      birthYear: anoNascimento
+    if (typeof birthYear !== "number"){
+      return res.status(400).json({ erro: "O campo birthYear tem de ser numérico." });
+    }
+
+    const autorAtualizado = await authorService.atualizarAutor(id, {
+      name,
+      nationality,
+      birthYear
     });
 
     if (!autorAtualizado){
-      return res.status(404).json({ erro: "Autor não encontrado" });
+      return res.status(404).json({ erro: "Autor não encontrado." });
     }
 
     return res.status(200).json(autorAtualizado);
@@ -77,17 +83,18 @@ const atualizarAutor = async (req, res, next) => {
 
 const apagarAutor = async (req, res, next) => {
   try{
-    const resultado = await autorService.apagarAutor(req.params.id);
+    const { id } = req.params;
+    const resultado = await authorService.apagarAutor(id);
 
     if (resultado === "NAO_ENCONTRADO"){
-      return res.status(404).json({ erro: "Autor não encontrado" });
+      return res.status(404).json({ erro: "Autor não encontrado." });
     }
 
     if (resultado === "TEM_LIVROS"){
-      return res.status(409).json({ erro: "Não é possível apagar um autor com livros associados" });
+      return res.status(409).json({ erro: "Não é possível apagar um autor com livros associados." });
     }
 
-    return res.status(200).json({ mensagem: "Autor removido com sucesso" });
+    return res.status(200).json({ mensagem: "Autor apagado com sucesso." });
   }
   catch (erro){
     next(erro);
@@ -96,23 +103,14 @@ const apagarAutor = async (req, res, next) => {
 
 const listarLivrosDoAutor = async (req, res, next) => {
   try{
-    const resultado = await autorService.listarLivrosDoAutor(req.params.id);
+    const { id } = req.params;
+    const livros = await authorService.listarLivrosDoAutor(id);
 
-    if (resultado === "NAO_ENCONTRADO"){
-      return res.status(404).json({ erro: "Autor não encontrado" });
+    if (livros === "NAO_ENCONTRADO"){
+      return res.status(404).json({ erro: "Autor não encontrado." });
     }
 
-    return res.status(200).json(resultado);
-  }
-  catch (erro){
-    next(erro);
-  }
-};
-
-const listarTopAutores = async (req, res, next) => {
-  try{
-    const autores = await autorService.listarTopAutores();
-    return res.status(200).json(autores);
+    return res.status(200).json(livros);
   }
   catch (erro){
     next(erro);
@@ -125,6 +123,5 @@ module.exports = {
   criarAutor,
   atualizarAutor,
   apagarAutor,
-  listarLivrosDoAutor,
-  listarTopAutores
+  listarLivrosDoAutor
 };

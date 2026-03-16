@@ -1,9 +1,8 @@
 const express = require("express");
 const router = express.Router();
+const statsController = require("../controllers/stats.controller");
 
-const estatisticasController = require("../controllers/stats.controller");
-
-router.get("/", estatisticasController.obterEstatisticasGerais);
-router.get("/genres", estatisticasController.obterEstatisticasPorGenero);
+router.get("/", statsController.obterEstatisticasGerais);
+router.get("/genres", statsController.obterEstatisticasPorGenero);
 
 module.exports = router;

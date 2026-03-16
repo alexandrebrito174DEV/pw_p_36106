@@ -1,6 +1,7 @@
-module.exports = (err, req, res, next) => {
-  console.error("ERRO REAL:", err);
-  return res.status(500).json({ erro: "Erro interno do servidor" });
-};
+module.exports = (erro, req, res, next) => {
+  console.error(erro);
 
-//indica os erros
+  return res.status(erro.status || 500).json({
+    erro: erro.message || "Erro interno do servidor."
+  });
+};

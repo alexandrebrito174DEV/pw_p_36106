@@ -1,8 +1,5 @@
-require("dotenv").config({ path: "./.env" });
-
 const express = require("express");
 const cors = require("cors");
-const morgan = require("morgan");
 
 const authorRoutes = require("./routes/author.routes");
 const bookRoutes = require("./routes/book.routes");
@@ -10,14 +7,15 @@ const statsRoutes = require("./routes/stats.routes");
 const errorMiddleware = require("./middlewares/error.middleware");
 
 const app = express();
+const PORT = process.env.SERVER_PORT || 4242;
 
 app.use(cors());
 app.use(express.json());
-app.use(morgan("dev"));
 
 app.get("/", (req, res) => {
   return res.status(200).json({
-    message: "API Biblioteca Avançada a funcionar"
+    mensagem: "API Biblioteca Avançada a funcionar.",
+    versao: "1.0.0"
   });
 });
 
@@ -27,18 +25,12 @@ app.use("/stats", statsRoutes);
 
 app.use((req, res) => {
   return res.status(404).json({
-    message: "Rota não encontrada"
+    erro: "Rota não encontrada."
   });
 });
 
 app.use(errorMiddleware);
 
-const PORT = process.env.SERVER_PORT || 4242;
-
-if (process.env.NODE_ENV !== "production"){
-  app.listen(PORT, () => {
-    console.log(`Servidor a correr em http://localhost:${PORT}`);
-  });
-}
-
-module.exports = app;
+app.listen(PORT, () => {
+  console.log(`Servidor a correr na porta ${PORT}`);
+});
